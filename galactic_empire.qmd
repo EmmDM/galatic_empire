@@ -1,0 +1,43 @@
+---
+title: "Galactic Empire"
+author: "Emmanuel de MOREL"
+format: html
+---
+
+## ** Voici le lien vers mon GitHub ** : https://github.com/EmmDM/galatic_empire
+
+
+```{r}
+# Sélection des librairies
+suppressWarnings({suppressMessages(library(here))
+suppressMessages(library(dplyr))
+library(tidyr)
+library(knitr)
+library(ggplot2)
+library(readr)
+library(stringr)
+library(readxl)})
+```
+
+```{r}
+# Lecture des bases de données 
+planets <- read_delim("PLANETS.csv", delim = ":", 
+    escape_double = FALSE, trim_ws = TRUE)
+```
+```{r}
+# On détermine le nombre de colonnes, de lignes, de pays et de variables dans chacune des bases de données initiales
+info_planets <- planets %>% summarise(ligne = nrow(.), colonne = ncol(.), Planet = n_distinct(Planet, na.rm = TRUE))
+
+# On cherche le nombre de valeurs manquantes pour chaque variable et le nombre d'oberservation avec au moins une valeur manquante 
+
+absent_variables <- planets %>%  summarise(Planet_number = sum(is.na(Planet_number)),Planet = sum(is.na(Planet)), STAR_IDX = sum(is.na(STAR_IDX)),`mass (earth)` = sum(is.na(`mass (earth)`)), `density (earth)` = sum(is.na(`density (earth)`)),`RELATIVE RADIUS` = sum(is.na(`RELATIVE RADIUS`)), Type_terrain = sum(is.na(Type_terrain)), `CLIMATE TYPE` = sum(is.na(`CLIMATE TYPE`)))
+
+#Je constate d'après le précèdent qu'il ne manque des variables que sur la variable "Type_terrain"
+absent_observation <- planets %>% group_by(Planet, Type_terrain) %>% summarise(count = is.na(`Type_terrain`)) %>% filter(str_starts(`count`,"TRUE"))
+
+knitr :: kable(info_planets, caption = "Information tableau de planets")
+knitr :: kable(absent_variables, caption = "Valeurs manquantes pour chaque variable")
+knitr :: kable(absent_observation, caption = "Obeservation manquante")
+```
+
+La base de données "planets" a bien 708 planètes comme indiqué dans le document et correspond aussi au nombre de lignes. Il y a aussi 8 colonnes, donc autant que de nombre de variable.
