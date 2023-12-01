@@ -2,6 +2,7 @@
 title: "Galactic Empire"
 author: "Emmanuel de MOREL"
 format: html
+echo : false
 ---
 
 ## Voici le lien vers mon GitHub  : https://github.com/EmmDM/galatic_empire
@@ -89,5 +90,9 @@ ggplot(climate_count, aes(x = num_climate)) + geom_bar(stat = "count", fill = "g
 terrain_count <- terrain_type %>% group_by(Planet_number) %>% summarise(num_terrain = n_distinct(`Type_terrain`))
 
 ggplot(terrain_count, aes(x = num_terrain)) + geom_bar(stat = "count", fill = "grey50", color = "black") + labs(title = "Distribution du nombre de terrain par planète", x ="nombre de terrain", y ="fréquence")  
+```
+```{r}
+#Question 9 Represent graphically the distribution of the radius of the planets conditioned by the climates. In other words, we want to see the distribution of the radius of the planets that have some arid regions, some humid regions, etc. Notice that each planet will be accounted for multiple times owing to the multivalued nature of the terrain and climate variables. This is not a problem!
+
 ```
 
