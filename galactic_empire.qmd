@@ -53,7 +53,18 @@ La base de données "planets" a bien 708 planètes comme indiqué dans le docume
 # Représentation graphique de la densité d'une planète en fonction de sa masse 
 ggplot(planets,(aes(x=`mass (earth)`, y=`density (earth)`))) + geom_point(na.rm = TRUE) + labs(title = "Densité d'une planète en fonction de sa masse ", x = "Masse d'une planète", y = "Densité d'une planète") 
 ```
-```{r}
 
+```{r}
+#Tableau avec les planètes les plus extrêmes.
+least_dense_planets <- planets %>% filter(!is.na(`density (earth)`)) %>% slice_min(`density (earth)`, n = 1)
+most_dense_planets <- planets %>% filter(!is.na(`density (earth)`)) %>% slice_max(`density (earth)`, n = 1)
+least_massive_planets <- planets %>% filter(!is.na(`mass (earth)`)) %>% slice_min(`mass (earth)`, n = 1)
+most_massive_planets <- planets %>% filter(!is.na(`mass (earth)`)) %>% slice_max(`mass (earth)`, n = 1)
+least_radius_planets <- planets %>% filter(!is.na(`RELATIVE RADIUS`)) %>% slice_min(`RELATIVE RADIUS`, n = 1)
+most_radius_planets <- planets %>% filter(!is.na(`RELATIVE RADIUS`)) %>% slice_max(`RELATIVE RADIUS`, n = 1)
+extreme_planets <- bind_rows(least_dense_planets,most_dense_planets,least_massive_planets,most_massive_planets,least_radius_planets,most_radius_planets)
+
+extreme_planets <- extreme_planets %>% distinct(Planet, .keep_all = TRUE)
+knitr::kable(extreme_planets, caption = "Planètes extrêmes de notre base de données")
 ```
 
