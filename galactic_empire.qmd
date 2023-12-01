@@ -4,7 +4,7 @@ author: "Emmanuel de MOREL"
 format: html
 ---
 
-## ** Voici le lien vers mon GitHub ** : https://github.com/EmmDM/galatic_empire
+## Voici le lien vers mon GitHub  : https://github.com/EmmDM/galatic_empire
 
 
 ```{r}
@@ -30,10 +30,16 @@ info_planets <- planets %>% summarise(ligne = nrow(.), colonne = ncol(.), Planet
 
 # On cherche le nombre de valeurs manquantes pour chaque variable et le nombre d'oberservation avec au moins une valeur manquante 
 
+
+planets$`mass (earth)`<- as.numeric(planets$`mass (earth)`)
+planets$`density (earth)`<- as.numeric(planets$`mass (earth)`)
+planets$`STAR_IDX`<- as.numeric(planets$`STAR_IDX`)
+planets$`RELATIVE RADIUS`<- as.numeric(planets$`RELATIVE RADIUS`)
 absent_variables <- planets %>%  summarise(Planet_number = sum(is.na(Planet_number)),Planet = sum(is.na(Planet)), STAR_IDX = sum(is.na(STAR_IDX)),`mass (earth)` = sum(is.na(`mass (earth)`)), `density (earth)` = sum(is.na(`density (earth)`)),`RELATIVE RADIUS` = sum(is.na(`RELATIVE RADIUS`)), Type_terrain = sum(is.na(Type_terrain)), `CLIMATE TYPE` = sum(is.na(`CLIMATE TYPE`)))
 
-#Je constate d'après le précèdent qu'il ne manque des variables que sur la variable "Type_terrain"
-absent_observation <- planets %>% group_by(Planet, Type_terrain) %>% summarise(count = is.na(`Type_terrain`)) %>% filter(str_starts(`count`,"TRUE"))
+
+absent_observation <- filter(planets, rowSums(is.na(planets)) > 0) 
+absent_observation <- nrow(absent_observation)
 
 knitr :: kable(info_planets, caption = "Information tableau de planets")
 knitr :: kable(absent_variables, caption = "Valeurs manquantes pour chaque variable")
@@ -41,3 +47,13 @@ knitr :: kable(absent_observation, caption = "Obeservation manquante")
 ```
 
 La base de données "planets" a bien 708 planètes comme indiqué dans le document et correspond aussi au nombre de lignes. Il y a aussi 8 colonnes, donc autant que de nombre de variable.
+
+
+```{r}
+# Représentation graphique de la densité d'une planète en fonction de sa masse 
+ggplot(planets,(aes(x=`mass (earth)`, y=`density (earth)`))) + geom_point(na.rm = TRUE) + labs(title = "Densité d'une planète en fonction de sa masse ", x = "Masse d'une planète", y = "Densité d'une planète") 
+```
+```{r}
+
+```
+
