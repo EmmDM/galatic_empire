@@ -5,11 +5,12 @@ format: html
 echo : false
 ---
 
-## Voici le lien vers mon GitHub  : https://github.com/EmmDM/galatic_empire
+## Here the link to the [GitHub repository]  : https://github.com/EmmDM/galatic_empire
 
-
+## Main data set import
 ```{r}
 # Sélection des librairies
+here::i_am("galatic_empire.Rproj")
 suppressWarnings({suppressMessages(library(here))
 suppressMessages(library(dplyr))
 library(vroom)
@@ -22,33 +23,57 @@ library(readxl)})
 ```
 
 ```{r}
-# Lecture des bases de données 
-planets <- read_delim("PLANETS.csv", delim = ":", 
-    escape_double = FALSE, trim_ws = TRUE)
+# Loading of the dataset
+planets <- vroom(
+  here("data","PLANETS.csv"),
+  na = "na",
+  delim = ":",
+  col_types = cols(
+    Planet_number = col_character(),
+    Planet = col_character(),
+    STAR_IDX = col_double(),
+    `mass (earth)` = col_double(),
+    `density (earth)` = col_double(),
+    `RELATIVE RADIUS` = col_double(),
+    `Type_terrain` = col_character(),
+    `CLIMATE TYPE` = col_character()
+  ))
+  
+#Check the structure of the loaded data
+str(planets)
 ```
+
+### Question 3
+Add code to your quarto file to load the main data set. To verify the validity of the loading
+ process, check that the number of planets is equal to the one specified above and that you get
+ the correct number of variables. 
 ```{r}
-# On détermine le nombre de colonnes, de lignes, de pays et de variables dans chacune des bases de données initiales
+#We determine the number of columns, rows, planets and variables in each of the initial databases
+
 info_planets <- planets %>% summarise(ligne = nrow(.), colonne = ncol(.), Planet = n_distinct(Planet, na.rm = TRUE))
 
-# On cherche le nombre de valeurs manquantes pour chaque variable et le nombre d'oberservation avec au moins une valeur manquante 
-
-
+# We look for the number of missing values for each variable and the number of observations with at least one missing value
 planets$`mass (earth)`<- as.numeric(planets$`mass (earth)`)
+
 planets$`density (earth)`<- as.numeric(planets$`mass (earth)`)
+
 planets$`STAR_IDX`<- as.numeric(planets$`STAR_IDX`)
+
 planets$`RELATIVE RADIUS`<- as.numeric(planets$`RELATIVE RADIUS`)
+
 absent_variables <- planets %>%  summarise(Planet_number = sum(is.na(Planet_number)),Planet = sum(is.na(Planet)), STAR_IDX = sum(is.na(STAR_IDX)),`mass (earth)` = sum(is.na(`mass (earth)`)), `density (earth)` = sum(is.na(`density (earth)`)),`RELATIVE RADIUS` = sum(is.na(`RELATIVE RADIUS`)), Type_terrain = sum(is.na(Type_terrain)), `CLIMATE TYPE` = sum(is.na(`CLIMATE TYPE`)))
 
 
 absent_observation <- filter(planets, rowSums(is.na(planets)) > 0) 
+
 absent_observation <- nrow(absent_observation)
 
-knitr :: kable(info_planets, caption = "Information tableau de planets")
-knitr :: kable(absent_variables, caption = "Valeurs manquantes pour chaque variable")
-knitr :: kable(absent_observation, caption = "Obeservation manquante")
+knitr :: kable(info_planets, caption = "Information table of planets")
+knitr :: kable(absent_variables, caption = "Missing values for each variable")
+knitr :: kable(absent_observation, caption = "Missing observation")
 ```
 
-La base de données "planets" a bien 708 planètes comme indiqué dans le document et correspond aussi au nombre de lignes. Il y a aussi 8 colonnes, donc autant que de nombre de variable.
+The "planets" database has 708 planets as indicated in the document and also corresponds to the number of rows. There are also 8 columns, so as many as the number of variables.
 
 
 ```{r}
