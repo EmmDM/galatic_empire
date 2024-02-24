@@ -1,0 +1,99 @@
+---
+title: "Galactic Empire"
+author: "Emmanuel de MOREL"
+format: html
+echo : false
+---
+
+## Voici le lien vers mon GitHub  : https://github.com/EmmDM/galatic_empire
+
+
+```{r}
+# Sélection des librairies
+suppressWarnings({suppressMessages(library(here))
+suppressMessages(library(dplyr))
+library(vroom)
+library(tidyr)
+library(knitr)
+library(ggplot2)
+library(readr)
+library(stringr)
+library(readxl)})
+```
+
+```{r}
+# Lecture des bases de données 
+planets <- read_delim("PLANETS.csv", delim = ":", 
+    escape_double = FALSE, trim_ws = TRUE)
+```
+```{r}
+# On détermine le nombre de colonnes, de lignes, de pays et de variables dans chacune des bases de données initiales
+info_planets <- planets %>% summarise(ligne = nrow(.), colonne = ncol(.), Planet = n_distinct(Planet, na.rm = TRUE))
+
+# On cherche le nombre de valeurs manquantes pour chaque variable et le nombre d'oberservation avec au moins une valeur manquante 
+
+
+planets$`mass (earth)`<- as.numeric(planets$`mass (earth)`)
+planets$`density (earth)`<- as.numeric(planets$`mass (earth)`)
+planets$`STAR_IDX`<- as.numeric(planets$`STAR_IDX`)
+planets$`RELATIVE RADIUS`<- as.numeric(planets$`RELATIVE RADIUS`)
+absent_variables <- planets %>%  summarise(Planet_number = sum(is.na(Planet_number)),Planet = sum(is.na(Planet)), STAR_IDX = sum(is.na(STAR_IDX)),`mass (earth)` = sum(is.na(`mass (earth)`)), `density (earth)` = sum(is.na(`density (earth)`)),`RELATIVE RADIUS` = sum(is.na(`RELATIVE RADIUS`)), Type_terrain = sum(is.na(Type_terrain)), `CLIMATE TYPE` = sum(is.na(`CLIMATE TYPE`)))
+
+
+absent_observation <- filter(planets, rowSums(is.na(planets)) > 0) 
+absent_observation <- nrow(absent_observation)
+
+knitr :: kable(info_planets, caption = "Information tableau de planets")
+knitr :: kable(absent_variables, caption = "Valeurs manquantes pour chaque variable")
+knitr :: kable(absent_observation, caption = "Obeservation manquante")
+```
+
+La base de données "planets" a bien 708 planètes comme indiqué dans le document et correspond aussi au nombre de lignes. Il y a aussi 8 colonnes, donc autant que de nombre de variable.
+
+
+```{r}
+# Représentation graphique de la densité d'une planète en fonction de sa masse 
+ggplot(planets,(aes(x=`mass (earth)`, y=`density (earth)`))) + geom_point(na.rm = TRUE) + labs(title = "Densité d'une planète en fonction de sa masse ", x = "Masse d'une planète", y = "Densité d'une planète") 
+```
+
+```{r}
+#Tableau avec les planètes les plus extrêmes.
+least_dense_planets <- planets %>% filter(!is.na(`density (earth)`)) %>% slice_min(`density (earth)`, n = 1)
+most_dense_planets <- planets %>% filter(!is.na(`density (earth)`)) %>% slice_max(`density (earth)`, n = 1)
+least_massive_planets <- planets %>% filter(!is.na(`mass (earth)`)) %>% slice_min(`mass (earth)`, n = 1)
+most_massive_planets <- planets %>% filter(!is.na(`mass (earth)`)) %>% slice_max(`mass (earth)`, n = 1)
+least_radius_planets <- planets %>% filter(!is.na(`RELATIVE RADIUS`)) %>% slice_min(`RELATIVE RADIUS`, n = 1)
+most_radius_planets <- planets %>% filter(!is.na(`RELATIVE RADIUS`)) %>% slice_max(`RELATIVE RADIUS`, n = 1)
+extreme_planets <- bind_rows(least_dense_planets,most_dense_planets,least_massive_planets,most_massive_planets,least_radius_planets,most_radius_planets)
+
+extreme_planets <- extreme_planets %>% distinct(Planet, .keep_all = TRUE)
+knitr::kable(extreme_planets, caption = "Planètes extrêmes de notre base de données")
+```
+
+```{r}
+#Using reframe and str_split, extract the terrain types and the climate types into two different data frames containing only two columns: the planet identifier (Planet_number) and the quantity of interest (terrain type or climate type). This last column must contain only a single value: there will be multiple rows per planet in general
+
+terrain_type <- planets %>% reframe(Planet_number, Type_terrain = str_split(Type_terrain, ",")) %>% unnest(Type_terrain)
+
+climate_type <- planets %>% reframe(Planet_number, `CLIMATE TYPE` = str_split(`CLIMATE TYPE`, ",")) %>% unnest(`CLIMATE TYPE`) 
+
+```
+
+```{r}
+#Question 8 :Represent graphically the distribution of the number of different climates per planet. Provide a similar representation for the terrain types.
+
+# On calcule le nombre de climat unique par planète
+climate_count <- climate_type %>% group_by(Planet_number) %>% summarise(num_climate = n_distinct(`CLIMATE TYPE`))
+
+ggplot(climate_count, aes(x = num_climate)) + geom_bar(stat = "count", fill = "grey50", color = "black") + labs(title = "Distribution du nombre de climat par planète", x ="nombre de climat", y ="fréquence")     
+
+# On calcule le nombre de terrain unique par planète
+terrain_count <- terrain_type %>% group_by(Planet_number) %>% summarise(num_terrain = n_distinct(`Type_terrain`))
+
+ggplot(terrain_count, aes(x = num_terrain)) + geom_bar(stat = "count", fill = "grey50", color = "black") + labs(title = "Distribution du nombre de terrain par planète", x ="nombre de terrain", y ="fréquence")  
+```
+```{r}
+#Question 9 Represent graphically the distribution of the radius of the planets conditioned by the climates. In other words, we want to see the distribution of the radius of the planets that have some arid regions, some humid regions, etc. Notice that each planet will be accounted for multiple times owing to the multivalued nature of the terrain and climate variables. This is not a problem!
+
+```
+
