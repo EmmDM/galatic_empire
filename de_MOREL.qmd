@@ -5,7 +5,7 @@ format: html
 echo : false
 ---
 
-## Here the link to the [GitHub repository]  : https://github.com/EmmDM/galatic_empire
+## Here the link to the GitHub repository: https://github.com/EmmDM/galatic_empire
 
 ## Main data set import
 ```{r}
@@ -21,7 +21,11 @@ library(readr)
 library(stringr)
 library(readxl)})
 ```
-
+### Question 3
+Add code to your quarto file to load the main data set. To verify the validity of the loading
+ process, check that the number of planets is equal to the one specified above and that you get
+ the correct number of variables. 
+ 
 ```{r}
 # Loading of the dataset
 planets <- vroom(
@@ -42,11 +46,12 @@ planets <- vroom(
 #Check the structure of the loaded data
 str(planets)
 ```
-
-### Question 3
-Add code to your quarto file to load the main data set. To verify the validity of the loading
- process, check that the number of planets is equal to the one specified above and that you get
- the correct number of variables. 
+### Question 4
+ Describe the data set with a properly formatted table according to the following metrics:
+• number of observations (i.e. planets)
+• number of variables
+• number of missing values for each variable with missing values
+• number of observations with at least one missing value
 ```{r}
 #We determine the number of columns, rows, planets and variables in each of the initial databases
 
@@ -64,13 +69,13 @@ planets$`RELATIVE RADIUS`<- as.numeric(planets$`RELATIVE RADIUS`)
 absent_variables <- planets %>%  summarise(Planet_number = sum(is.na(Planet_number)),Planet = sum(is.na(Planet)), STAR_IDX = sum(is.na(STAR_IDX)),`mass (earth)` = sum(is.na(`mass (earth)`)), `density (earth)` = sum(is.na(`density (earth)`)),`RELATIVE RADIUS` = sum(is.na(`RELATIVE RADIUS`)), Type_terrain = sum(is.na(Type_terrain)), `CLIMATE TYPE` = sum(is.na(`CLIMATE TYPE`)))
 
 
-absent_observation <- filter(planets, rowSums(is.na(planets)) > 0) 
+absent_observation <- filter(planets, rowSums(is.na(planets)) > 1) 
 
 absent_observation <- nrow(absent_observation)
 
 knitr :: kable(info_planets, caption = "Information table of planets")
 knitr :: kable(absent_variables, caption = "Missing values for each variable")
-knitr :: kable(absent_observation, caption = "Missing observation")
+knitr :: kable(absent_observation, caption = "Observations with at Least One Missing Value")
 ```
 
 The "planets" database has 708 planets as indicated in the document and also corresponds to the number of rows. There are also 8 columns, so as many as the number of variables.
