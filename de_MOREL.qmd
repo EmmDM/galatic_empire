@@ -80,10 +80,13 @@ knitr :: kable(absent_observation, caption = "Observations with at Least One Mis
 
 The "planets" database has 708 planets as indicated in the document and also corresponds to the number of rows. There are also 8 columns, so as many as the number of variables.
 
-
+### Question 5
+Represent graphically the density of a planet as a function its mass.
 ```{r}
-# Représentation graphique de la densité d'une planète en fonction de sa masse 
-ggplot(planets,(aes(x=`mass (earth)`, y=`density (earth)`))) + geom_point(na.rm = TRUE) + labs(title = "Densité d'une planète en fonction de sa masse ", x = "Masse d'une planète", y = "Densité d'une planète") 
+# Graphical representation of the density of a planet as a function of its mass
+planets_complete <- planets %>% filter(!is.na(`density (earth)` & is.na(`mass (earth)`)))
+
+ggplot(planets_complete,(aes(x=`mass (earth)`, y=`density (earth)`))) + geom_point( size=1, na.rm = TRUE, color = "royalblue1") + labs(title = "Density of a planet as a function of its mass", x = "Mass of a planet", y = "Density of a planet") 
 ```
 
 ```{r}
