@@ -89,18 +89,29 @@ planets_complete <- planets %>% filter(!is.na(`density (earth)` & is.na(`mass (e
 ggplot(planets_complete,(aes(x=`mass (earth)`, y=`density (earth)`))) + geom_point( size=1, na.rm = TRUE, color = "royalblue1") + labs(title = "Density of a planet as a function of its mass", x = "Mass of a planet", y = "Density of a planet") 
 ```
 
+###  Question 6
+Report in a table the most extreme planets with respect to the numerical variables. This should include, for instance, the densest and least dense planets.
+
 ```{r}
-#Tableau avec les planètes les plus extrêmes.
+#Table with the most extreme planets.
 least_dense_planets <- planets %>% filter(!is.na(`density (earth)`)) %>% slice_min(`density (earth)`, n = 1)
+
 most_dense_planets <- planets %>% filter(!is.na(`density (earth)`)) %>% slice_max(`density (earth)`, n = 1)
+
 least_massive_planets <- planets %>% filter(!is.na(`mass (earth)`)) %>% slice_min(`mass (earth)`, n = 1)
+
 most_massive_planets <- planets %>% filter(!is.na(`mass (earth)`)) %>% slice_max(`mass (earth)`, n = 1)
+
 least_radius_planets <- planets %>% filter(!is.na(`RELATIVE RADIUS`)) %>% slice_min(`RELATIVE RADIUS`, n = 1)
+
 most_radius_planets <- planets %>% filter(!is.na(`RELATIVE RADIUS`)) %>% slice_max(`RELATIVE RADIUS`, n = 1)
+
 extreme_planets <- bind_rows(least_dense_planets,most_dense_planets,least_massive_planets,most_massive_planets,least_radius_planets,most_radius_planets)
 
+extreme_planets <- extreme_planets %>% select(-"Planet_number", -"Type_terrain",-"CLIMATE TYPE", -"STAR_IDX")
+
 extreme_planets <- extreme_planets %>% distinct(Planet, .keep_all = TRUE)
-knitr::kable(extreme_planets, caption = "Planètes extrêmes de notre base de données")
+knitr::kable(extreme_planets,caption = "Extreme planets from our database")
 ```
 
 ```{r}
