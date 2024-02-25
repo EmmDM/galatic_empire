@@ -7,7 +7,7 @@ echo : false
 
 ## Here the link to the GitHub repository: https://github.com/EmmDM/galatic_empire
 
-## Main data set import
+## I. Main data set import
 ```{r}
 # Sélection des librairies
 here::i_am("galatic_empire.Rproj")
@@ -113,31 +113,46 @@ extreme_planets <- extreme_planets %>% select(-"Planet_number", -"Type_terrain",
 extreme_planets <- extreme_planets %>% distinct(Planet, .keep_all = TRUE)
 knitr::kable(extreme_planets,caption = "Extreme planets from our database")
 ```
+## II. Improved data representation
 
+### Question 7
+Using reframe and str_split, extract the terrain types and the climate types into two different data frames containing only two columns: the planet identifier (Planet_number) and the quantity of interest (terrain type or climate type). This last column must contain only a single value: there will be multiple rows per planet in general
 ```{r}
-#Using reframe and str_split, extract the terrain types and the climate types into two different data frames containing only two columns: the planet identifier (Planet_number) and the quantity of interest (terrain type or climate type). This last column must contain only a single value: there will be multiple rows per planet in general
+terrain_type <- planets %>%
+  reframe(Planet_number, Type_terrain = str_split(Type_terrain, ",")) %>%
+  unnest(Type_terrain)  %>%
+  mutate(`Type_terrain` = trimws(`Type_terrain`))
 
-terrain_type <- planets %>% reframe(Planet_number, Type_terrain = str_split(Type_terrain, ",")) %>% unnest(Type_terrain)
+climate_type <- planets %>%
+  reframe(Planet_number, `CLIMATE TYPE` = str_split(`CLIMATE TYPE`, ","), `RELATIVE RADIUS`) %>%
+  unnest(`CLIMATE TYPE`) %>%
+  mutate(`CLIMATE TYPE` = trimws(`CLIMATE TYPE`))
 
-climate_type <- planets %>% reframe(Planet_number, `CLIMATE TYPE` = str_split(`CLIMATE TYPE`, ",")) %>% unnest(`CLIMATE TYPE`) 
-
+head(terrain_type)
+head(climate_type)
 ```
 
-```{r}
-#Question 8 :Represent graphically the distribution of the number of different climates per planet. Provide a similar representation for the terrain types.
+## Question 8 
+Represent graphically the distribution of the number of different climates per planet. Provide a similar representation for the terrain types.
 
-# On calcule le nombre de climat unique par planète
+```{r}
+# We calculate the number of unique climates per planet
 climate_count <- climate_type %>% group_by(Planet_number) %>% summarise(num_climate = n_distinct(`CLIMATE TYPE`))
 
-ggplot(climate_count, aes(x = num_climate)) + geom_bar(stat = "count", fill = "grey50", color = "black") + labs(title = "Distribution du nombre de climat par planète", x ="nombre de climat", y ="fréquence")     
+ggplot(climate_count, aes(x = num_climate)) + geom_bar(stat = "count", fill = "mediumturquoise", color = "black") + labs(title = "Distribution of the number of climates per planet", x ="Climate number", y ="Number of planets")     
 
-# On calcule le nombre de terrain unique par planète
+# We calculate the number of unique terrains per planet
 terrain_count <- terrain_type %>% group_by(Planet_number) %>% summarise(num_terrain = n_distinct(`Type_terrain`))
 
-ggplot(terrain_count, aes(x = num_terrain)) + geom_bar(stat = "count", fill = "grey50", color = "black") + labs(title = "Distribution du nombre de terrain par planète", x ="nombre de terrain", y ="fréquence")  
+ggplot(terrain_count, aes(x = num_terrain)) + geom_bar(stat = "count", fill ="firebrick1", color = "black") + labs(title = "Distribution of the number of terrains per planet", x ="Number of terrain", y ="Number of planets")  
 ```
+## Question 9
+Represent graphically the distribution of the radius of the planets conditioned by the climates. In other words, we want to see the distribution of the radius of the planets that have some arid regions, some humid regions, etc. Notice that each planet will be accounted for multiple times owing to the multivalued nature of the terrain and climate variables. This is not a problem!
 ```{r}
-#Question 9 Represent graphically the distribution of the radius of the planets conditioned by the climates. In other words, we want to see the distribution of the radius of the planets that have some arid regions, some humid regions, etc. Notice that each planet will be accounted for multiple times owing to the multivalued nature of the terrain and climate variables. This is not a problem!
-
+# Graphical representation of the radius of the planets conditioned by the climates
+ggplot(climate_type, aes(x=`CLIMATE TYPE`, y = `RELATIVE RADIUS`, fill = `CLIMATE TYPE`)) +
+  geom_boxplot(na.rm = TRUE) +
+  theme(axis.text.x=element_text(angle=50, size=8, vjust=0.5)) +
+  labs(title = "the radius of the planets conditioned by the climates", x = "Climate Type", y = "Relative Radius")
 ```
 
