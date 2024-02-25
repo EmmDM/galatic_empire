@@ -202,4 +202,14 @@ stars <- stars %>%   separate(`TYPE OF STAR`, into = c("Temperature Class", "Mag
 
 head(stars)
 ```
+##  Question 13
+Represent graphically the distribution of the stars in the data set according to their temperature
+class.
+
+```{r}
+ggplot(stars, aes(x = `Temperature Class`, fill = `Temperature Class`)) +
+  geom_bar(stat = "count", color = "black", na.rm = TRUE) +
+  labs(title = "Distribution of the stars \naccording to their temperature class", x = "Temperature class", y = "Number of stars") 
+
+```
 
